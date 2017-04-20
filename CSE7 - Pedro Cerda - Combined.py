@@ -92,8 +92,7 @@ class HealthPotion(Consumables):
             print("You can not take the health potion, you are not damaged.")
         else:
             target.health += self.health_boost
-            print("You have regained %s health, your health is now at %s." \
-                  % (self.health_boost, target.health))
+            print("You have regained %s health, your health is now at %s." % (self.health_boost, target.health))
 
 
 edw = HealthPotion("Health Restoration Potion", 25, 2, 40)
@@ -186,7 +185,7 @@ food = Room('Foodcourt', None, 'wfr', 'mentr', 'bath', None, None, ' There are\
 tons of empty tables. The light is flickering.', None)
 
 # Room4
-elev = Room('Elevator', None, 'mentr', None, None, None, None, ' It\'s\
+elev = Room('Elevator', None, 'mentr', None, None, None, None, ' It\'s \
 an elevator. The power is down.', None)
 
 # Room5
