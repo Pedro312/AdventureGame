@@ -105,15 +105,16 @@ def good():
     print("Good")
 
 
-class Character(Item):
-    def __init__(self, name, hp, damage, attack_speed, armor):
-        super(Item, self).__init__()
+class Character(object):
+    def __init__(self, name, hp, damage, attack_speed, armor, bag = None):
+        if bag is None:
+            bag = []
         self.name = name
         self.damage = damage
         self.health = hp
         self.attack_speed = attack_speed
-        self.bag = []
         self.armor = armor
+        self.bag = bag
 
     def pick_up(self, item):
         self.bag.append(item)
@@ -153,7 +154,9 @@ wiebe = Character('Senor Wiebe', 100, 66, 2, 200)
 
 
 class Room:
-    def __init__(self, the_name, N, W, E, S, U, D, the_description, items):
+    def __init__(self, the_name, N, W, E, S, U, D, the_description, item= None):
+        if item is None:
+            item = []
         self.name = the_name
         self.description = the_description
         self.north = N
@@ -162,7 +165,7 @@ class Room:
         self.south = S
         self.up = U
         self.down = D
-        self.items = items
+        self.item = item
 
     def move(self, direction):
         """This function allows movement to a different node.
@@ -264,12 +267,25 @@ node = mentr
 is_alive = True
 directions = ['north', 'south', 'east', 'west', 'up', 'down']
 short_directions = ['n', 's', 'e', 'w', 'u', 'd']
-
+pick = ['pick up', 'Pick up']
 while is_alive:
     # Print room name and description
     print(node.name)
     print(node.description)
-
+    print("You have the following items in your bag:")
+    for item in ed.bag:
+        print(item.name)
+    if len(node.item) > 0:
+        print()
+        print("There are the following items:")
+        for num, item in enumerate(node.item):
+            print(str(num + 1) + ": " + item.name)
+    else:
+        user_input = input('> ')
+        if command in pick:
+            if len(node.items) > 0:
+                print ()
+                
     # Ask for input
     command = input('> ')
     if command in ['quit', 'exit']:
