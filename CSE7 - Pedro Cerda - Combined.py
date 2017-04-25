@@ -281,11 +281,11 @@ while is_alive:
         for num, item in enumerate(node.item):
             print(str(num + 1) + ": " + item.name)
     else:
-        user_input = input('> ')
+        command = input('> ')
         if command in pick:
             if len(node.items) > 0:
-                print ()
-                
+                print()
+
     # Ask for input
     command = input('> ')
     if command in ['quit', 'exit']:
@@ -295,7 +295,6 @@ while is_alive:
     if command in short_directions:
         index = short_directions.index(command)
         command = directions[index]
-    # noinspection PyBroadException
     try:
         node.move(command)
     except:
