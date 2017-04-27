@@ -154,9 +154,9 @@ wiebe = Character('Senor Wiebe', 100, 66, 2, 200)
 
 
 class Room:
-    def __init__(self, the_name, N, W, E, S, U, D, the_description, item= None):
-        if item is None:
-            item = []
+    def __init__(self, the_name, N, W, E, S, U, D, the_description, items= None):
+        if items is None:
+            items = []
         self.name = the_name
         self.description = the_description
         self.north = N
@@ -165,7 +165,7 @@ class Room:
         self.south = S
         self.up = U
         self.down = D
-        self.item = item
+        self.items = items
 
     def move(self, direction):
         """This function allows movement to a different node.
@@ -177,7 +177,7 @@ class Room:
 # Room1
 mentr = Room('Mall Entrance', 'hw', 'food', 'elev', None, None, None, ' You\
  are in the front mall entrance. Behind you are the\
- mall front doors, but they are nailed shut.', None)
+ mall front doors, but they are nailed shut.', cookie)
 
 # Room2
 hw = Room('Hallway', 'ftl', 'jail', 'hw2', 'mentr', None, None, ' It\'s a long \
@@ -197,7 +197,7 @@ significantly moist.', None)
 
 # Room6
 bath = Room('Bathroom', 'food', None, None, None, None, None, ' It\'s a \
-bathroom. The stalls are locked and the mirrors are shattered.', None)
+bathroom. The stalls are locked and the mirrors are shattered.', edw)
 
 # Room7
 jail = Room('Mall Jail', None, None, 'hw', None, None, None, ' This is \
@@ -275,27 +275,33 @@ while is_alive:
     print("You have the following items in your bag:")
     for item in ed.bag:
         print(item.name)
-    if len(node.item) > 0:
+    if len(node.items) > 0:
         print()
         print("There are the following items:")
-        for num, item in enumerate(node.item):
+        for num, item in enumerate(node.items):
             print(str(num + 1) + ": " + item.name)
     else:
         command = input('> ')
         if command in pick:
             if len(node.items) > 0:
                 print()
-
-    # Ask for input
-    command = input('> ')
-    if command in ['quit', 'exit']:
-        sys.exit(0)
-
-        # Allows us to change nodes
-    if command in short_directions:
-        index = short_directions.index(command)
-        command = directions[index]
-    try:
-        node.move(command)
-    except:
-        print('You can\'t')
+                print('Enter the number to pick the item up.')
+                for num, item in enumerate(node.items):
+                    print(str(num + 1) + ": " + item.name)
+                print()
+                command = int(input('>')) - 1
+                ed.pick_up(node.items[command])
+                node.items.pop(command)
+        else:
+            # Ask for input
+            if command in ['quit', 'exit']:
+                sys.exit(0)
+            else:
+                # Allows us to change nodes
+                if command in short_directions:
+                    index = short_directions.index(command)
+                    command = directions[index]
+                try:
+                    node.move(command)
+                except:
+                    print('You can\'t')
