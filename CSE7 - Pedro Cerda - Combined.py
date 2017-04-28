@@ -106,7 +106,7 @@ def good():
 
 
 class Character(object):
-    def __init__(self, name, hp, damage, attack_speed, armor, bag = None):
+    def __init__(self, name, hp, damage, attack_speed, armor, bag=None):
         if bag is None:
             bag = []
         self.name = name
@@ -116,9 +116,9 @@ class Character(object):
         self.armor = armor
         self.bag = bag
 
-    def pick_up(self, item):
-        self.bag.append(item)
-        print("You put the %s in your bag." % item)
+    def pick_up(self, thing):
+        self.bag.append(thing)
+        print("You put the %s in your bag." % thing)
 
     def attack(self, target):
         if target.health == 0:
@@ -143,7 +143,7 @@ class Character(object):
         else:
             print("You can not eat anymore, or you may explode.")
 
-
+fillet = Food('Nom', 20, 20)
 orc1 = Character('The First Orc', 100, 20, 2, 0)
 orc2 = Character('The Second Orc', 100, 20, 2, 0)
 sam = Character("Sam V", 100, 0.000000000001, 0.0000000001, 50)
@@ -154,7 +154,7 @@ wiebe = Character('Senor Wiebe', 100, 66, 2, 200)
 
 
 class Room:
-    def __init__(self, the_name, N, W, E, S, U, D, the_description, items= None):
+    def __init__(self, the_name, N, W, E, S, U, D, the_description, items):
         if items is None:
             items = []
         self.name = the_name
@@ -177,7 +177,7 @@ class Room:
 # Room1
 mentr = Room('Mall Entrance', 'hw', 'food', 'elev', None, None, None, ' You\
  are in the front mall entrance. Behind you are the\
- mall front doors, but they are nailed shut.', cookie)
+ mall front doors, but they are nailed shut.', [cookie])
 
 # Room2
 hw = Room('Hallway', 'ftl', 'jail', 'hw2', 'mentr', None, None, ' It\'s a long \
@@ -267,7 +267,7 @@ node = mentr
 is_alive = True
 directions = ['north', 'south', 'east', 'west', 'up', 'down']
 short_directions = ['n', 's', 'e', 'w', 'u', 'd']
-pick = ['pick up', 'Pick up']
+Pick = ['pick up', 'Pick up']
 while is_alive:
     # Print room name and description
     print(node.name)
@@ -280,9 +280,8 @@ while is_alive:
         print("There are the following items:")
         for num, item in enumerate(node.items):
             print(str(num + 1) + ": " + item.name)
-    else:
-        command = input('> ')
-        if command in pick:
+            command = input('> ')
+        if command in Pick:
             if len(node.items) > 0:
                 print()
                 print('Enter the number to pick the item up.')
@@ -292,15 +291,15 @@ while is_alive:
                 command = int(input('>')) - 1
                 ed.pick_up(node.items[command])
                 node.items.pop(command)
+    else:
+         # Ask for input
+        if command in ['quit', 'exit']:
+            sys.exit(0)
         else:
-            # Ask for input
-            if command in ['quit', 'exit']:
-                sys.exit(0)
-            else:
-                # Allows us to change nodes
-                if command in short_directions:
-                    index = short_directions.index(command)
-                    command = directions[index]
+            # Allows us to change nodes
+            if command in short_directions:
+                index = short_directions.index(command)
+                command = directions[index]
                 try:
                     node.move(command)
                 except:
