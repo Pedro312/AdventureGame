@@ -116,9 +116,9 @@ class Character(object):
         self.armor = armor
         self.bag = bag
 
-    def pick_up(self, thing):
-        self.bag.append(thing)
-        print("You put the %s in your bag." % thing)
+    def pick_up(self, items):
+        self.bag.append(items)
+        print("You put the %s in your bag." % items.name)
 
     def attack(self, target):
         if target.health == 0:
@@ -154,9 +154,11 @@ wiebe = Character('Senor Wiebe', 100, 66, 2, 200)
 
 
 class Room:
-    def __init__(self, the_name, N, W, E, S, U, D, the_description, items):
+    def __init__(self, the_name, N, W, E, S, U, D, the_description, items, npc):
         if items is None:
             items = []
+        if npc is None:
+            npc = []
         self.name = the_name
         self.description = the_description
         self.north = N
@@ -166,10 +168,10 @@ class Room:
         self.up = U
         self.down = D
         self.items = items
+        self.npc = npc
 
     def move(self, direction):
-        """This function allows movement to a different node.
-        """
+        #This function allows movement to a different node.
         global node
         node = globals()[getattr(self, direction)]
 
@@ -268,7 +270,7 @@ is_alive = True
 directions = ['north', 'south', 'east', 'west', 'up', 'down']
 short_directions = ['n', 's', 'e', 'w', 'u', 'd']
 Pick = ['pick up', 'Pick up']
-while is_alive:
+while is_alive is True:
     # Print room name and description
     print(node.name)
     print(node.description)
@@ -280,26 +282,25 @@ while is_alive:
         print("There are the following items:")
         for num, item in enumerate(node.items):
             print(str(num + 1) + ": " + item.name)
-            command = input('> ')
-        if command in Pick:
-            if len(node.items) > 0:
-                print()
-                print('Enter the number to pick the item up.')
-                for num, item in enumerate(node.items):
-                    print(str(num + 1) + ": " + item.name)
-                print()
-                command = int(input('>')) - 1
-                ed.pick_up(node.items[command])
-                node.items.pop(command)
+    command = input('> ')
+    if command in Pick:
+        if len(node.items) > 0:
+            print()
+            print('Enter the number to pick the item up.')
+            for num, item in enumerate(node.items):
+                print(str(num + 1) + ": " + item.name)
+            print()
+            command = int(input('>')) - 1
+            ed.pick_up(node.items[command])
+            node.items.pop(command)
     else:
-         # Ask for input
+            # Ask for input
         if command in ['quit', 'exit']:
             sys.exit(0)
         else:
-            # Allows us to change nodes
+                # Allows us to change nodes
             if command in short_directions:
-                index = short_directions.index(command)
-                command = directions[index]
+                command = directions[short_directions.index(command)]
                 try:
                     node.move(command)
                 except:
