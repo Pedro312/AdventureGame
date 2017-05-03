@@ -4,6 +4,11 @@ import sys
 def message(x):
     print(x)
 
+commands = "pick up, n, e, w,s, quit"
+
+#def combat():
+
+
 
 class Item(object):
     def __init__(self, name, value):
