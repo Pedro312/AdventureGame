@@ -4,7 +4,7 @@ import sys
 def message(x):
     print(x)
 
-commands = "pick up, n, e, w,s, quit"
+commands = "pick up, n, e, w, s, quit"
 
 #def combat():
 
@@ -106,10 +106,6 @@ cookie = Food("Cookie", 15, 20)
 bobe = Car("Bobby's Car", "V8", "Carbon Fiber")
 
 
-def good():
-    print("Good")
-
-
 class Character(object):
     def __init__(self, name, hp, damage, attack_speed, armor, bag=None):
         if bag is None:
@@ -176,7 +172,7 @@ class Room:
         self.npc = npc
 
     def move(self, direction):
-        #This function allows movement to a different node.
+        ##This function allows movement to a different node.
         global node
         node = globals()[getattr(self, direction)]
 
@@ -275,6 +271,7 @@ is_alive = True
 directions = ['north', 'south', 'east', 'west', 'up', 'down']
 short_directions = ['n', 's', 'e', 'w', 'u', 'd']
 Pick = ['pick up', 'Pick up']
+good = ["good", "Good"]
 while is_alive is True:
     # Print room name and description
     print(node.name)
@@ -310,3 +307,6 @@ while is_alive is True:
                     node.move(command)
                 except:
                     print('You can\'t')
+            else:
+                if command in good:
+                    print ("Good")
