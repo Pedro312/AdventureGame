@@ -137,6 +137,10 @@ class Character(object):
         self.armor = armor
         self.bag = bag
 
+    def equip(self, items):
+        self.damage = items.damage
+        print('Your attack has been changed to %s' % self.damage)
+
     def pick_up(self, items):
         self.bag.append(items)
         print("You put the %s in your bag." % items.name)
@@ -148,10 +152,10 @@ class Character(object):
             target.take_damage(self.damage)
 
     def take_damage(self, damage):
-        if self.armor > 0:
+        if self.armor >= 0:
             self.armor -= damage
         elif self.armor == 0:
-            if self.health > 0:
+            if self.health >= 0:
                 self.health -= damage
         else:
             print("%s is already dead" % self.name)
@@ -166,18 +170,16 @@ class Character(object):
 fillet = Food('Fillet', 20, 20)
 orc1 = Character('The First Orc', 100, 20, 2, 0)
 orc2 = Character('The Second Orc', 100, 25, 2, 0)
-ed = Character('Edwin Burgos', 100, 25, 1, 500)
-rob = Character('Roberto Moreno', 100, 100, 2, 200)
+ed = Character('Edwin Burgos', 100, 25, 1, 200)
+rob = Character('Roberto Moreno', 125, 25, 2, 50)
 bobb = Character('Bobby Vixathep', 100, 20, 2, 0)
-wiebe = Character('Senor Wiebe', 100, 66, 2, 200)
+wiebe = Character('Senor Wiebe', 100, 50, 2, 100)
 
 
 class Room:
-    def __init__(self, the_name, N, W, E, S, U, D, the_description, items, npc):
+    def __init__(self, the_name, N, W, E, S, U, D, the_description, items, npc=None):
         if items is None:
             items = []
-        if npc is None:
-            npc = []
         self.name = the_name
         self.description = the_description
         self.north = N
@@ -218,7 +220,7 @@ significantly moist.', None, None)
 
 # Room6
 bath = Room('Bathroom', 'food', None, None, None, None, None, ' It\'s a \
-bathroom. The stalls are locked and the mirrors are shattered.', [edw], None)
+bathroom. The stalls are locked and the mirrors are shattered.', [edw], orc2)
 
 # Room7
 jail = Room('Mall Jail', None, None, 'hw', None, None, None, ' This is \
@@ -238,7 +240,7 @@ pp = Room('Pretzel Palace', 'kc', None, None, 'hw2', None, None, 'There is a col
 
 # Room11
 kc = Room('Kitchen', 'frz', None, None, 'pp', None, None, "It's a kitchen. There\
- is a freezer towards the back and pans on the ground.", None, None)
+ is a freezer towards the back and pans on the ground.", None, rob)
 
 # Room12
 hg = Room('Hunting Goods', 'hw2', None, None, 'ws', None, None,
@@ -276,7 +278,7 @@ the end of a hall the hall continues ahead.", None, None)
 hbp = Room('Hli\'s Beauty Products', None, 'hw3', None, None, None, None, "A\
  very neat beauty store, with makeup products on  the shelves,\
  and clothing hanging on racks organized by color. A name tag reading 'Hli'\
- is lying on the counter.", None, None)
+ is lying on the counter.", None, wiebe)
 
 # Room20
 co = Room('Clothing Outlet', 'hw3', None, None, None, None, None, "There is \
@@ -290,63 +292,67 @@ directions = ['north', 'south', 'east', 'west', 'up', 'down']
 short_directions = ['n', 's', 'e', 'w', 'u', 'd']
 Pick = ['pick up', 'Pick up']
 good = ["good", "Good"]
+Equip = ['Equip', 'use']
 while is_alive is True:
     if node.npc is not None:
         print(node.name)
         print(node.description)
+        print()
         combat(node.npc)
         node.npc = None
         print()
-    if node.npc is None:
     #Print room name and description
-        print(node.name)
-        print(node.description)
-        print("You have the following items in your bag:")
-        for item in ed.bag:
-            print(item.name)
+    print(node.name)
+    print(node.description)
+    print("You have the following items in your bag:")
+    for item in ed.bag:
+        print(item.name)
+    if len(node.items) > 0:
+        print()
+        print("There are the following items:")
+        for num, item in enumerate(node.items):
+            print(str(num + 1) + ": " + item.name)
+    command = input('> ')
+    if command in Pick:
         if len(node.items) > 0:
             print()
-            print("There are the following items:")
+            print('Enter the number to pick the item up.')
             for num, item in enumerate(node.items):
                 print(str(num + 1) + ": " + item.name)
-        command = input('> ')
-        if command in Pick:
-            if len(node.items) > 0:
-                print()
-                print('Enter the number to pick the item up.')
-                for num, item in enumerate(node.items):
-                    print(str(num + 1) + ": " + item.name)
-                print()
-                command = int(input('>')) - 1
-                ed.pick_up(node.items[command])
-                node.items.pop(command)
+            print()
+            command = int(input('>')) - 1
+            ed.pick_up(node.items[command])
+            node.items.pop(command)
+    if command in Equip:
+        if len(ed.bag) > 0:
+            print()
+            print("Enter the number of item you want to equip.")
+            for num, item in enumerate(ed.bag):
+                print(str(num + 1) + ': ' + item.name)
+            print()
+            command = int(input('>')) - 1
+            ed.equip(ed.bag[command])
+    else:
+            # Ask for input
+        if command in ['quit', 'exit']:
+            sys.exit(0)
         else:
-<<<<<<< HEAD
-                # Ask for input
-            if command in ['quit', 'exit']:
-                sys.exit(0)
-            else:
-                        # Allows us to change nodes
-                if command in short_directions:
-                    command = directions[short_directions.index(command)]
-                    try:
-                        node.move(command)
-                    except:
-                        print('You can\'t')
-=======
-                # Allows us to change nodes
+                    # Allows us to change nodes
             if command in short_directions:
                 command = directions[short_directions.index(command)]
                 try:
                     node.move(command)
                 except:
                     print('You can\'t')
-            else:
-<<<<<<< HEAD
-                if command in ['help', 'instructions']:
-                    print ("some commands include;", commands)
-=======
-                if command in good:
-                    print ("Good")
->>>>>>> origin/master
->>>>>>> origin/master
+            # Allows us to change nodes
+        if command in short_directions:
+            command = directions[short_directions.index(command)]
+            try:
+                node.move(command)
+            except:
+                print('You can\'t')
+        else:
+            if command in ['help', 'instructions']:
+                print("some commands include;", commands)
+            if command in good:
+                print("Good")
