@@ -1,13 +1,9 @@
 import sys
 
-
 def message(x):
     print(x)
 
 commands = "pick up, n, e, w, s, quit"
-
-#def combat():
-
 
 
 class Item(object):
@@ -144,7 +140,7 @@ class Character(object):
         else:
             print("You can not eat anymore, or you may explode.")
 
-fillet = Food('Nom', 20, 20)
+fillet = Food('Fillet', 20, 20)
 orc1 = Character('The First Orc', 100, 20, 2, 0)
 orc2 = Character('The Second Orc', 100, 20, 2, 0)
 sam = Character("Sam V", 100, 0.000000000001, 0.0000000001, 50)
@@ -308,5 +304,5 @@ while is_alive is True:
                 except:
                     print('You can\'t')
             else:
-                if command in good:
-                    print ("Good")
+                if command in ['help', 'instructions']:
+                    print ("some commands include;", commands)
