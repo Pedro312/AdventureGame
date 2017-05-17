@@ -5,6 +5,30 @@ def message(x):
     print(x)
 
 
+def combat(target):
+    print("You have %d health left." % ed.health)
+    print("%s has %d health left." % (target.name, target.health))
+    while target.health > 0 and ed.health > 0:
+        comm = input("> ")
+        print()
+        if comm in ['q', 'quit', 'exit']:
+            sys.exit(0)
+        elif comm == 'attack':
+            ed.attack(target)
+            print('%s has %d armor left.' % (target.name, target.armor))
+            print("%s has %d health left." % (target.name, target.health))
+            print()
+            target.attack(ed)
+            print('You have %d armor left.' % ed.armor)
+            print("You have %d health left." % ed.health)
+            print()
+        if ed.health <= 0:
+            print("You have been defeated.")
+            sys.exit(0)
+        if target.health <= 0:
+            print("You have slain %s" % target.name)
+
+
 class Item(object):
     def __init__(self, name, value):
         self.name = name
@@ -125,7 +149,6 @@ class Character(object):
             print("%s is already dead." % target.name)
         else:
             target.take_damage(self.damage)
-            print("You attacked %s for %d damage." % (target.name, self.damage))
 
     def take_damage(self, damage):
         if self.armor > 0:
@@ -145,9 +168,8 @@ class Character(object):
 
 fillet = Food('Nom', 20, 20)
 orc1 = Character('The First Orc', 100, 20, 2, 0)
-orc2 = Character('The Second Orc', 100, 20, 2, 0)
-sam = Character("Sam V", 100, 0.000000000001, 0.0000000001, 50)
-ed = Character('Edwin Burgos', 100, 2, 1, 500)
+orc2 = Character('The Second Orc', 100, 25, 2, 0)
+ed = Character('Edwin Burgos', 100, 25, 1, 500)
 rob = Character('Roberto Moreno', 100, 100, 2, 200)
 bobb = Character('Bobby Vixathep', 100, 20, 2, 0)
 wiebe = Character('Senor Wiebe', 100, 66, 2, 200)
@@ -179,7 +201,7 @@ class Room:
 # Room1
 mentr = Room('Mall Entrance', 'hw', 'food', 'elev', None, None, None, ' You\
  are in the front mall entrance. Behind you are the\
- mall front doors, but they are nailed shut.', [cookie], None)
+ mall front doors, but they are nailed shut.', [cookie], orc1)
 
 # Room2
 hw = Room('Hallway', 'ftl', 'jail', 'hw2', 'mentr', None, None, ' It\'s a long \
@@ -271,37 +293,44 @@ directions = ['north', 'south', 'east', 'west', 'up', 'down']
 short_directions = ['n', 's', 'e', 'w', 'u', 'd']
 Pick = ['pick up', 'Pick up']
 while is_alive is True:
-    # Print room name and description
-    print(node.name)
-    print(node.description)
-    print("You have the following items in your bag:")
-    for item in ed.bag:
-        print(item.name)
-    if len(node.items) > 0:
+    if node.npc is not None:
+        print(node.name)
+        print(node.description)
+        combat(node.npc)
+        node.npc = None
         print()
-        print("There are the following items:")
-        for num, item in enumerate(node.items):
-            print(str(num + 1) + ": " + item.name)
-    command = input('> ')
-    if command in Pick:
+    if node.npc is None:
+    #Print room name and description
+        print(node.name)
+        print(node.description)
+        print("You have the following items in your bag:")
+        for item in ed.bag:
+            print(item.name)
         if len(node.items) > 0:
             print()
-            print('Enter the number to pick the item up.')
+            print("There are the following items:")
             for num, item in enumerate(node.items):
                 print(str(num + 1) + ": " + item.name)
-            print()
-            command = int(input('>')) - 1
-            ed.pick_up(node.items[command])
-            node.items.pop(command)
-    else:
-            # Ask for input
-        if command in ['quit', 'exit']:
-            sys.exit(0)
+        command = input('> ')
+        if command in Pick:
+            if len(node.items) > 0:
+                print()
+                print('Enter the number to pick the item up.')
+                for num, item in enumerate(node.items):
+                    print(str(num + 1) + ": " + item.name)
+                print()
+                command = int(input('>')) - 1
+                ed.pick_up(node.items[command])
+                node.items.pop(command)
         else:
-                # Allows us to change nodes
-            if command in short_directions:
-                command = directions[short_directions.index(command)]
-                try:
-                    node.move(command)
-                except:
-                    print('You can\'t')
+                # Ask for input
+            if command in ['quit', 'exit']:
+                sys.exit(0)
+            else:
+                        # Allows us to change nodes
+                if command in short_directions:
+                    command = directions[short_directions.index(command)]
+                    try:
+                        node.move(command)
+                    except:
+                        print('You can\'t')
