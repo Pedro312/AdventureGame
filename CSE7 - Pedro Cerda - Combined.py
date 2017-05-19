@@ -16,11 +16,13 @@ def combat(target):
             sys.exit(0)
         elif comm == 'attack':
             ed.attack(target)
-            print('%s has %d armor left.' % (target.name, target.armor))
+            if target.armor > 0:
+                print('%s has %d armor left.' % (target.name, target.armor))
             print("%s has %d health left." % (target.name, target.health))
             print()
             target.attack(ed)
-            print('You have %d armor left.' % ed.armor)
+            if ed.armor > 0:
+                print('You have %d armor left.' % ed.armor)
             print("You have %d health left." % ed.health)
             print()
         if ed.health <= 0:
@@ -47,6 +49,10 @@ class Weapon(Item):
     def attack(self, target):
         print("You attack %s for %d damage." % (target.name, self.damage))
 
+class Pistol(Weapon):
+    def __init__(self, name, value, damage):
+        super(Weapon, self).__init__(name, value)
+        self.damage = damage
 
 class Bomb(Weapon):
     def __init__(self, name, value, damage):
@@ -124,6 +130,7 @@ edw = HealthPotion("Health Restoration Potion", 25, 2, 40)
 bobby = Bomb("Bobby's Bomb", 2, 20)
 cookie = Food("Cookie", 15, 20)
 bobe = Car("Bobby's Car", "V8", "Carbon Fiber")
+glo = Pistol("The Glock", 15, 30)
 
 
 class Character(object):
@@ -139,23 +146,23 @@ class Character(object):
 
     def equip(self, items):
         self.damage = items.damage
-        print('Your attack has been changed to %s' % self.damage)
+        print('Your damage has been changed to %s' % self.damage)
 
     def pick_up(self, items):
         self.bag.append(items)
         print("You put the %s in your bag." % items.name)
 
     def attack(self, target):
-        if target.health == 0:
+        if target.health <= 0:
             print("%s is already dead." % target.name)
         else:
             target.take_damage(self.damage)
 
     def take_damage(self, damage):
-        if self.armor >= 0:
+        if self.armor > 0:
             self.armor -= damage
-        elif self.armor == 0:
-            if self.health >= 0:
+        elif self.armor <= 0:
+            if self.health > 0:
                 self.health -= damage
         else:
             print("%s is already dead" % self.name)
@@ -224,7 +231,7 @@ bathroom. The stalls are locked and the mirrors are shattered.', [edw], orc2)
 
 # Room7
 jail = Room('Mall Jail', None, None, 'hw', None, None, None, ' This is \
-the mall jail. It is extremely cold, and a badge is gleaming on the desk.', None, None)
+the mall jail. It is extremely cold, and a badge is gleaming on the desk.', [glo], None)
 
 # Room8
 ftl = Room('Footlocker', None, None, None, 'hw', None, None, ' It\'s a \
@@ -244,7 +251,7 @@ kc = Room('Kitchen', 'frz', None, None, 'pp', None, None, "It's a kitchen. There
 
 # Room12
 hg = Room('Hunting Goods', 'hw2', None, None, 'ws', None, None,
-          "It's a hunting shop. There are firearms hung on the walls and on the counters.", None, None)
+"It's a hunting shop. There are firearms hung on the walls and on the counters.", None, None)
 
 # Room13
 ws = Room('Weapon Storage', 'hg', None, None, None, None, None, "There are\
@@ -354,5 +361,3 @@ while is_alive is True:
         else:
             if command in ['help', 'instructions']:
                 print("some commands include;", commands)
-            if command in good:
-                print("Good")
