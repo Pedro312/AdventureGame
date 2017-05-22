@@ -3,7 +3,7 @@ import sys
 def message(x):
     print(x)
 
-commands = "pick up, n, e, w, s, quit"
+commands = "pick up, n, e, w, s, quit, attack, hit, drop, eat, drink"
 
 
 def combat(target):
@@ -35,8 +35,7 @@ class Item(object):
     def __init__(self, name, value, isweapon):
         self.name = name
         self.value = value
-        self. isweapom = isweapon
-
+        self. isweapon = isweapon
 
     def sell(self):
         print("You sell the %s for %d gold." % (self.name, self.value))
@@ -72,12 +71,23 @@ class Dagger(Weapon):
 
 
 class Food(Item):
-    def __init__(self, name, value, health, isweapon):
+    def __init__(self, name, value, health, isweapon, amount):
         super(Item, self).__init__()
         self.name = name
         self.value = value
         self.health = health
         self.isweapon = isweapon
+        self.amount = amount
+
+    def consume(self, target):
+        if self.amount > 0:
+            print("%s takes in the item." % target.name)
+            self.amount -= 1
+            if target.health < 100:
+                target.health += self.health
+        if self.amount <= 0:
+            ed.bag.pop(command)
+            print("You have run out of the item.")
 
 
 class Armor(Item):
@@ -90,41 +100,44 @@ class Armor(Item):
 
 
 class Consumables(Item):
-    def __init__(self, name, value, amount, isweapon):
+    def __init__(self, name, value, amount, isweapon, health):
         super(Item, self).__init__()
         self.name = name
         self.value = value
         self.amount = amount
         self.isweapon = isweapon
+        self.health = health
 
     def consume(self, target):
         if self.amount > 0:
             print("%s takes in the item." % target.name)
             self.amount -= 1
-            if target.health > 100:
-                target.health = 100
-            if self.amount <= 0:
-                print("You run out of the item.")
-        else:
-            print('You no longer have that item')
+            if target.health < 100:
+                target.health += self.health
+        if self.amount <= 0:
+            ed.bag.pop(command)
+            print("You have run out of the item.")
 
 
 class HealthPotion(Consumables):
-    def __init__(self, name, value, amount, health_boost, isweapon):
-        super(HealthPotion, self).__init__(name, value, amount, isweapon)
-        self.health_boost = health_boost
+    def __init__(self, name, value, amount, isweapon, health):
+        super(HealthPotion, self).__init__(name, value, amount, isweapon, health)
         self.isweapon = isweapon
+        self.health = health
 
-    def heal(self, target):
-        if target.health >= 100:
-            print("You can not take the health potion, you are not damaged.")
-        else:
-            target.health += self.health_boost
-            print("You have regained %s health, your health is now at %s." % (self.health_boost, target.health))
+    def consume(self, target):
+        if self.amount > 0:
+            print("%s takes in the item." % target.name)
+            self.amount -= 1
+            if target.health < 100:
+                target.health += self.health
+        if self.amount <= 0:
+            ed.bag.pop(command)
+            print("You have run out of the item.")
 
 
-edw = HealthPotion("Health Restoration Potion", 25, 2, 40, False)
-cookie = Food("Cookie", 15, 20, False)
+edw = HealthPotion("Health Restoration Potion", 25, 1, False, 40)
+cookie = Food("Cookie", 15, 20, False, 2)
 glo = Pistol("The Glock", 15, 40, True)
 swo = Sword('El Dorito', 10, 30, True)
 ird = Dagger('Irrelevant Dagger', 5, 25, True)
@@ -164,14 +177,16 @@ class Character(object):
         else:
             print("%s is already dead" % self.name)
 
-    def eat(self, comida):
-        if self.health < 100:
-            self.health += comida.health
-            print("You have eaten %s and gained %d health." % (comida.name, comida.health))
-        else:
-            print("You can not eat anymore, or you may explode.")
+    def consume(self, consumable):
+        if consumable.amount > 0:
+            print("%s takes in the item." % self.name)
+            consumable.amount -= 1
+            if self.health < 100:
+                self.health += consumable.health
+        if consumable.amount <= 0:
+            ed.bag.pop(command)
+            print("You have run out of the item.")
 
-fillet = Food('Fillet', 20, 20, False)
 orc1 = Character('The First Orc', 100, 20, 2, 0)
 orc2 = Character('The Second Orc', 100, 25, 2, 0)
 ed = Character('Edwin Burgos', 100, 25, 1, 100)
@@ -253,7 +268,7 @@ hg = Room('Hunting Goods', 'hw2', None, None, 'ws', None, None,
 # Room13
 ws = Room('Weapon Storage', 'hg', None, None, None, None, None, "There are\
  racks of weapons on the walls and aligned on shelves, and stacks of\
- ammunition in the corner of the room.", None, None)
+ ammunition in the corner of the room.", ird, None)
 
 # Room14
 pa = Room('Play Area', 'ts', 'hw2', 'hw3', 'jwr', None, None, "There are\
@@ -355,36 +370,44 @@ while is_alive is True:
                 print(str(num + 1) + ": " + Consumable.name)
             print()
             command = int(input('>')) - 1
-            ed.bag[command].consume(ed)
-            ed.bag.pop(command)
-            if ed.health < 100:
-                ed.health = 100
-                print('Your health is now at %d' % ed.health)
-            else:
 
-        if command in health:
-            print('You have %d armor left.' % ed.armor)
-            print('You have %d health left.' % ed.health)
-            print()
+            if ed.bag[command].isweapon is False:
+                ed.bag[command].consume(ed)
+                if ed.health > 100:
+                    ed.health = 100
+                print("You now have %d health." % ed.health)
+                print()
+            elif ed.bag[command].isweapon is not False:
+                print('Item is not consumable;')
+                print()
         else:
-                # Ask for input
-            if command in ['quit', 'exit']:
-                sys.exit(0)
+            if command in health:
+                if ed.armor <= 0:
+                    print('You have 0 armor left.')
+                    print('You have %d health left.' % ed.health)
+                elif ed.armor > 0:
+                    print('You have %d armor left.' % ed.armor)
+                    print('You have %d health left.' % ed.health)
+                    print()
             else:
-                        # Allows us to change nodes
+                    # Ask for input
+                if command in ['quit', 'exit']:
+                    sys.exit(0)
+                else:
+                            # Allows us to change nodes
+                    if command in short_directions:
+                        command = directions[short_directions.index(command)]
+                        try:
+                            node.move(command)
+                        except:
+                            print('You can\'t')
+                    # Allows us to change nodes
                 if command in short_directions:
                     command = directions[short_directions.index(command)]
                     try:
                         node.move(command)
                     except:
                         print('You can\'t')
-                # Allows us to change nodes
-            if command in short_directions:
-                command = directions[short_directions.index(command)]
-                try:
-                    node.move(command)
-                except:
-                    print('You can\'t')
-            else:
-                if command in ['help', 'instructions']:
-                    print("some commands include;", commands)
+                else:
+                    if command in ['help', 'instructions']:
+                        print("some commands include;", commands)
