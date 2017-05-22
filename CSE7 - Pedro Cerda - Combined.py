@@ -49,11 +49,34 @@ class Weapon(Item):
     def attack(self, target):
         print("You attack %s for %d damage." % (target.name, self.damage))
 
-class Pistol(Weapon):
-    def __init__(self, name, value, damage, isweapon):
+
+class Guns(Weapon):
+    def __init__(self, name, value, damage, isweapon, ammo):
+        super(Weapon, self).__init__(name, value, isweapon)
+        self.damage = damage
+        self.ammo = ammo
+
+    def attack(self, target):
+        if self.ammo <= 0:
+            print('You have no more ammo.')
+        elif self.ammo > 0:
+            print("You attack %s for %d damage." % (target.name, self.damage))
+            target.health -= self.damage
+
+
+class Pistol(Guns):
+    def __init__(self, name, value, damage, isweapon, ammo):
         super(Weapon, self).__init__(name, value, isweapon)
         self.damage = damage
         self.isweapon = isweapon
+        self.ammo = ammo
+
+    def attack(self, target):
+        if self.ammo <= 0:
+            print('You have no more ammo.')
+        elif self.ammo > 0:
+            print("You attack %s for %d damage." % (target.name, self.damage))
+            target.health -= self.damage
 
 
 class Sword(Weapon):
@@ -138,7 +161,7 @@ class HealthPotion(Consumables):
 
 edw = HealthPotion("Health Restoration Potion", 25, 1, False, 40)
 cookie = Food("Cookie", 15, 20, False, 2)
-glo = Pistol("The Glock", 15, 40, True)
+glo = Pistol("The Glock", 15, 40, True, 1)
 swo = Sword('El Dorito', 10, 30, True)
 ird = Dagger('Irrelevant Dagger', 5, 25, True)
 
@@ -370,7 +393,6 @@ while is_alive is True:
                 print(str(num + 1) + ": " + Consumable.name)
             print()
             command = int(input('>')) - 1
-
             if ed.bag[command].isweapon is False:
                 ed.bag[command].consume(ed)
                 if ed.health > 100:
