@@ -15,25 +15,30 @@ def combat(target):
         print('%s has %d armor left.' % (target.name , target.armor))
     print("%s has %d health left." % (target.name, target.health))
     while target.health > 0 and ed.health > 0:
-        comm = input("> ")
-        if comm in ['q', 'quit', 'exit']:
+        command = input("> ")
+        if command in ['q', 'quit', 'exit']:
             sys.exit(0)
-        if comm in consume:
+        elif command in consume:
             print("Enter the number of the item you wish to take in:")
-            for num, Consumable in enumerate(ed.bag):
-                print(str(num + 1) + ": " + Consumable.name)
+            for num, consumable in enumerate(ed.bag):
+                print(str(num + 1) + ": " + consumable.name)
             print()
-            comm = int(input('>')) - 1
-            if ed.bag[comm].isweapon is False:
-                ed.bag[comm].consume(ed)
-                if ed.health > 100:
-                    ed.health = 100
-                print("You now have %d health." % ed.health)
-                print()
-            elif ed.bag[comm].isweapon is not False:
+            command = int(input('>')) - 1
+            if ed.bag[command].isweapon is False:
+                if ed.bag[command].amount > 0:
+                    ed.bag[command].consume(ed)
+                    if ed.health > 100:
+                        ed.health = 100
+                    print("You now have %d health." % ed.health)
+                    print()
+                if ed.bag[command].amount <= 0:
+                    print('You have run out of this item.')
+                    ed.bag.pop(command)
+                    print()
+            elif ed.bag[command].isweapon is not False:
                 print('Item is not consumable;')
                 print()
-        elif comm == 'attack':
+        elif command == 'attack':
             ed.attack(target)
             if target.armor > 0:
                 print('%s has %d armor left.' % (target.name, target.armor))
@@ -136,7 +141,6 @@ class Food(Item):
             if target.health < 100:
                 target.health += self.health
         if self.amount <= 0:
-            ed.bag.pop(command)
             print("You have run out of the item.")
 
 
@@ -167,7 +171,6 @@ class Consumables(Item):
             if target.health < 100:
                 target.health += self.health
         if self.amount <= 0:
-            ed.bag.pop(command)
             print("You have run out of the item.")
 
 
@@ -185,7 +188,6 @@ class HealthPotion(Consumables):
             if target.health < 100:
                 target.health += self.health
         if self.amount <= 0:
-            ed.bag.pop(command)
             print("You have run out of the item.")
 
 
@@ -200,6 +202,7 @@ m4 = Pistol('M4 Carbine', 200, 75, True, 1, True)
 mhp = HealthPotion('Medium Health Potion', 2, 2, False, 35, False)
 kk = Dagger('Kitchen Knife', 2, 10, True, False)
 shp = HealthPotion('Strong Health Potion', 2, 1, False, 50, False)
+uhp = HealthPotion('Ultra Health Potion', 2, 3, False, 100, False)
 ic = Food('Ice Cream', 2, 15, False, 1, False)
 
 
@@ -251,13 +254,17 @@ class Character(object):
 orc1 = Character('The First Orc', 100, 20, 2, 0)
 orc2 = Character('The Second Orc', 100, 25, 2, 0)
 ed = Character('Edwin Burgos', 100, 25, 1, 100)
-rob = Character('Roberto Moreno', 200, 25, 2, 50)
+rob = Character('Roberto Moreno', 100, 25, 2, 0)
 bob = Character('Bobby Vixathep', 100, 20, 2, 0)
-wiebe = Character('Senor Wiebe', 100, 35, 2, 0)
+la = Character('Senor Wiebe', 100, 75, 2, 125)
 g = Character('Gloria', 100, 30, 2, 25)
 Hli = Character('Hli', 100, 50, 2, 25)
 gi = Character('Giant', 100, 50, 2, 50)
-
+gl = Character('Eric', 100, 50, 2, 75)
+ja = Character('Jacinto', 100, 50, 2, 100)
+ro = Character('Gun Guardian', 100, 40, 2, 50)
+wiebe = Character('Larry', 100, 35, 3, 0)
+rc = Character('Stranger', 100, 25, 3, 25)
 
 class Room:
     def __init__(self, the_name, N, W, E, S, U, D, the_description, items, npc=None, hli=None):
@@ -296,7 +303,7 @@ tons of empty tables. The light is flickering.', None, None, None)
 
 # Room4
 elev = Room('Elevator', None, 'mentr', None, None, None, None, ' It\'s \
-an elevator. The power is down.', [edw, kk], None, None)
+an elevator. The power is down.', [mhp, kk], None, None)
 
 # Room5
 wfr = Room('Wet Floor', None, None, 'food', None, None, None, ' The floor is \
@@ -308,11 +315,11 @@ bathroom. The stalls are locked and the mirrors are shattered.', [edw], orc2, No
 
 # Room7
 jail = Room('Mall Jail', None, None, 'hw', None, None, None, ' This is \
-the mall jail. It is extremely cold, and a badge is gleaming on the desk.', [glo], None, None)
+the mall jail. It is extremely cold, and a badge is gleaming on the desk.', [glo, mhp], rc, None)
 
 # Room8
 ftl = Room('Footlocker', None, None, None, 'hw', None, None, ' It\'s a \
-store. There are shoes thrown all over the ground and fairly large footprints,', None, rob, None)
+store. There are shoes thrown all over the ground and fairly large footprints,', [shp], rob, None)
 
 # Room9
 hw2 = Room('Hallway', 'pp', 'hw', 'pa', 'hg', None, None, ' It\'s a \
@@ -327,23 +334,23 @@ kc = Room('Kitchen', 'frz', None, None, 'pp', None, None, "It's a kitchen. There
  is a freezer towards the back and pans on the ground.", [edw], None, None)
 
 # Room12
-hg = Room('Hunting Goods', 'hw2', None, None, 'ws', None, None,
-"It's a hunting shop. There are firearms hung on the walls and on the counters.", None, None, None)
+hg = Room('Hunting Goods', 'hw2', None, None, 'ws', None, None, "It's a hunting shop. \
+There are firearms hung on the walls and on the counters.", None, None, None)
 
 # Room13
 ws = Room('Weapon Storage', 'hg', None, None, None, None, None, "There are\
  racks of weapons on the walls and aligned on shelves, and stacks of\
- ammunition in the corner of the room.", [ri, mhp], None, None)
+ ammunition in the corner of the room.", [ri, mhp], ro, None)
 
 # Room14
 pa = Room('Play Area', 'ts', 'hw2', 'hw3', 'jwr', None, None, "There are\
  multiple obstacle courses for children, but a few are broken in half\
- and most have spider webs.", None, g, None)
+ and most have spider webs.", [mhp], g, None)
 
 # Room15
 frz = Room('Freezer', None, None, None, 'kc', None, None, "It is extremely\
  cold (obviously, it's a freezer) and to your right there are frozen\
- water bottles.", [ird], None, None)
+ water bottles.", [ird, mhp], None, None)
 
 # Room16
 ts = Room('Toy Store', None, None, None, 'pa', None, None, "This room seems to\
@@ -352,7 +359,7 @@ ts = Room('Toy Store', None, None, None, 'pa', None, None, "This room seems to\
 # Room17
 jwr = Room('Jewelry Store', 'pa', None, None, None, None, None, "There are\
  diamond rings in the glass cases, and a sparkling diamond necklace\
- sitting alone on a counter top.", [ban], None, None)
+ sitting alone on a counter top.", [ban, shp], None, None)
 
 # Room18
 hw3 = Room('Hallway', 'hw4', 'pa', 'hbp', 'co', None, None, "It's \
@@ -374,25 +381,25 @@ There's a sign which reads 'She's in here'. Something doesn't seem right.", [shp
 
 # Room22
 Dr = Room('Dark Room', 'r23', None, None, 'hw4', None, None, "It is very dark, but a flickering light makes the room \
-barely visible.", None, None, None)
+barely visible.", None, gi, None)
 
 # Room23
 r23 = Room('Light Room', 'r24', None, 'Dr', None, None, "The exact opposite of the last room, it is extremely bright \
-as the walls grow a bright white.", None, None, None)
+as the walls grow a bright white.", None, gl, None)
 # Room24
 r24 = Room('Mirror Room', 'r25', None, None, 'r23', None, None, "The room is full of mirrors. All around you the only \
-the only visible thing is your reflectio.", None, None, None)
+the only visible thing is your reflectio.", None, ja, None)
 
 # Room25
 r25 = Room('Restroom', 'r26', None, None, 'r24', None, None, "There are two pouches on the ground. A sign reads 'Go north \
-when ready.", [edw, mhp], None, None)
+when ready.", [edw, mhp, shp], None, None)
 
 # Room26
 r26 = Room('Final Room', 'r27', None, None, 'r25', None, None, "There is another set of bulky doors. A sign reads \
-'If you've made it this far go ahead just one more time.'", None, None, None)
+'If you've made it this far go ahead just one more time.'", None, la, None)
 
 # Room27
-r27 = Room('Backroom', None, None, None, r26, None, None, "In the corner is a girl... Hli?", None, None, Hli)
+r27 = Room('Backroom', None, None, None, 'r26', None, None, "In the corner is a girl... Hli?", None, None, Hli)
 
 node = mentr
 
@@ -458,16 +465,21 @@ while is_alive is True:
         else:
             if command in consume:
                 print("Enter the number of the item you wish to take in:")
-                for num, Consumable in enumerate(ed.bag):
-                    print(str(num + 1) + ": " + Consumable.name)
+                for num, consumable in enumerate(ed.bag):
+                    print(str(num + 1) + ": " + consumable.name)
                 print()
                 command = int(input('>')) - 1
                 if ed.bag[command].isweapon is False:
-                    ed.bag[command].consume(ed)
-                    if ed.health > 100:
-                        ed.health = 100
-                    print("You now have %d health." % ed.health)
-                    print()
+                    if ed.bag[command].amount > 0:
+                        ed.bag[command].consume(ed)
+                        if ed.health > 100:
+                            ed.health = 100
+                            print("You now have %d health." % ed.health)
+                        print()
+                    if ed.bag[command].amount <= 0:
+                        print('You have run out of this item.')
+                        ed.bag.pop(command)
+                        print()
                 elif ed.bag[command].isweapon is not False:
                     print('Item is not consumable;')
                     print()
